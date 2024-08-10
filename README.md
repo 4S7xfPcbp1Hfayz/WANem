@@ -1,21 +1,21 @@
-# WANem
+# 🌐 WANem
 
-WANem (Wide Area Network Emulator) is a simple and efficient Flask-based application that allows you to easily set up and control traffic conditions such as bandwidth, latency, packet loss, packet corruption, and more on a network interface.
+WANem (Wide Area Network Emulator) is a simple and efficient Flask-based application that allows you to easily set up and control traffic conditions such as bandwidth, latency, packet loss, packet corruption, and more on a network interface using `tc` and `netem` utilities.
 
-## Features
+## ✨ Features
 
-- **Network Interface Details**: Retrieve detailed information about network interfaces including MAC address, MTU, speed, duplex, status, IPv4 address, netmask, and VLAN info.
-- **IP Forwarding**: Enable or disable IP forwarding on the system.
-- **DNS Configuration**: View and modify DNS server settings directly through the API.
+- 🔍 **Network Interface Details**: Retrieve detailed information about network interfaces including MAC address, MTU, speed, duplex, status, IPv4 address, netmask, and VLAN info.
+- 🔄 **IP Forwarding**: Enable or disable IP forwarding on the system.
+- 🛠️ **DNS Configuration**: View and modify DNS server settings directly through the API.
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 
-- Python 3.6+
-- Flask
+- 🐍 Python 3.6+
+- ⚙️ Flask
 
-### Installation
+### 💻 Installation
 
 1. Clone the repository:
    ```bash
@@ -41,9 +41,9 @@ WANem (Wide Area Network Emulator) is a simple and efficient Flask-based applica
 
    The application will start on `http://0.0.0.0:5000/`.
 
-### API Endpoints
+### 🔌 API Endpoints
 
-#### Retrieve Network Interface Information
+#### 🌐 Retrieve Network Interface Information
 
 - **Endpoint**: `/api/network-info`
 - **Method**: `GET`
@@ -54,7 +54,7 @@ WANem (Wide Area Network Emulator) is a simple and efficient Flask-based applica
     "status": "success",
     "interfaces": {
       "eth0": {
-        "mac_address": "00:1A:2B:3C:4D:5E",
+        "mac_address": "00:20:91:AB:34:56",
         "mtu": "1500",
         "speed": "1000Mb/s",
         "duplex": "Full",
@@ -71,7 +71,7 @@ WANem (Wide Area Network Emulator) is a simple and efficient Flask-based applica
   }
   ```
 
-#### Enable/Disable IP Forwarding
+#### 🔄 Enable/Disable IP Forwarding
 
 - **Endpoint**: `/api/ip-forwarding`
 - **Method**: `GET` or `POST`
@@ -89,7 +89,7 @@ WANem (Wide Area Network Emulator) is a simple and efficient Flask-based applica
   }
   ```
 
-#### Retrieve DNS Information
+#### 📡 Retrieve DNS Information
 
 - **Endpoint**: `/api/dns-info`
 - **Method**: `GET`
@@ -105,7 +105,7 @@ WANem (Wide Area Network Emulator) is a simple and efficient Flask-based applica
   }
   ```
 
-#### Update DNS Servers
+#### ⚙️ Update DNS Servers
 
 - **Endpoint**: `/api/dns-setup`
 - **Method**: `POST`
@@ -127,14 +127,14 @@ WANem (Wide Area Network Emulator) is a simple and efficient Flask-based applica
   }
   ```
 
-### Logging
+### 📝 Logging
 
 Logging is configured to output messages to the console. You can adjust the logging level and format as needed.
 
-### Contributing
+### 🤝 Contributing
 
 Feel free to fork this project and submit pull requests. For major changes, please open an issue first to discuss what you would like to change.
 
-### License
+### 📄 License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.
