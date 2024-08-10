@@ -23,7 +23,7 @@ It's particularly useful for testing SD-WAN and other network scenarios.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/WANem.git
+   git clone https://github.com/4S7xfPcbp1Hfayz/WANem.git
    cd WANem
    ```
 
