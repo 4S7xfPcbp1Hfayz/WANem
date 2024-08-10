@@ -49,87 +49,9 @@ It's particularly useful for testing SD-WAN and other network scenarios.
 
 #### 🌐 Retrieve Network Interface Information
 
-- **Endpoint**: `/api/network-info`
-- **Method**: `GET`
-- **Description**: Get detailed information about all network interfaces.
-- **Response Example**:
-  ```json
-  {
-    "status": "success",
-    "interfaces": {
-      "eth0": {
-        "mac_address": "00:20:91:AB:34:56",
-        "mtu": "1500",
-        "speed": "1000Mb/s",
-        "duplex": "Full",
-        "status": "up",
-        "ipv4": {
-          "address": "192.168.1.2",
-          "netmask": "24"
-        },
-        "vlan": {
-          "id": "1"
-        }
-      }
-    }
-  }
-  ```
+You can view the API documentation for WANem using Swagger at the following link:
 
-#### 🔄 Enable/Disable IP Forwarding
-
-- **Endpoint**: `/api/ip-forwarding`
-- **Method**: `GET` or `POST`
-- **Description**: View or modify the IP forwarding status.
-- **Request Body Example (for POST)**:
-  ```json
-  {
-    "action": "enable"
-  }
-  ```
-- **Response Example**:
-  ```json
-  {
-    "status": "IP forwarding enabled"
-  }
-  ```
-
-#### 📡 Retrieve DNS Information
-
-- **Endpoint**: `/api/dns-info`
-- **Method**: `GET`
-- **Description**: Retrieve the current DNS servers configured in `/etc/resolv.conf`.
-- **Response Example**:
-  ```json
-  {
-    "status": "success",
-    "dns_servers": [
-      "8.8.8.8",
-      "8.8.4.4"
-    ]
-  }
-  ```
-
-#### ⚙️ Update DNS Servers
-
-- **Endpoint**: `/api/dns-setup`
-- **Method**: `POST`
-- **Description**: Update the DNS servers in `/etc/resolv.conf`.
-- **Request Body Example**:
-  ```json
-  {
-    "dns_servers": [
-      "8.8.8.8",
-      "8.8.4.4"
-    ]
-  }
-  ```
-- **Response Example**:
-  ```json
-  {
-    "status": "success",
-    "message": "DNS servers updated successfully."
-  }
-  ```
+[Swagger API Documentation](https://editor.swagger.io/?url=https://raw.githubusercontent.com/4S7xfPcbp1Hfayz/WANem/main/openapi.yaml)
 
 ### 📝 Logging
 
