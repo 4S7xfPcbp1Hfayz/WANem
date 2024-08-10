@@ -2,6 +2,8 @@
 
 WANem (Wide Area Network Emulator) is a simple and efficient Flask-based application that allows you to easily set up and control traffic conditions such as bandwidth, latency, packet loss, packet corruption, and more on a network interface using `tc` and `netem` utilities.
 
+It's particularly useful for testing SD-WAN and other network scenarios.
+
 ## ✨ Features
 
 - 🔍 **Network Interface Details**: Retrieve detailed information about network interfaces including MAC address, MTU, speed, duplex, status, IPv4 address, netmask, and VLAN info.
