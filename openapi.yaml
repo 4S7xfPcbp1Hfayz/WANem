@@ -1,0 +1,205 @@
+openapi: 3.0.3
+info:
+  title: WANem API
+  description: API for controlling network traffic conditions such as bandwidth, latency, packet loss, and more using tc and netem.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local server
+paths:
+  /api/network-info:
+    get:
+      summary: Retrieve Network Interface Information
+      description: Get detailed information about all network interfaces.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  interfaces:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        mac_address:
+                          type: string
+                          example: "00:20:91:AB:34:56"
+                        mtu:
+                          type: string
+                          example: "1500"
+                        speed:
+                          type: string
+                          example: "1000Mb/s"
+                        duplex:
+                          type: string
+                          example: "Full"
+                        status:
+                          type: string
+                          example: "up"
+                        ipv4:
+                          type: object
+                          properties:
+                            address:
+                              type: string
+                              example: "192.168.1.2"
+                            netmask:
+                              type: string
+                              example: "24"
+                        vlan:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: "1"
+  /api/ip-forwarding:
+    get:
+      summary: Retrieve IP Forwarding Status
+      description: Get the current IP forwarding status.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ip_forwarding:
+                    type: string
+                    example: enabled
+    post:
+      summary: Modify IP Forwarding Status
+      description: Enable or disable IP forwarding on the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum:
+                    - enable
+                    - disable
+                  example: enable
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: IP forwarding enabled
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid action. Must be 'enable' or 'disable'
+  /api/dns-info:
+    get:
+      summary: Retrieve DNS Information
+      description: Get the current DNS servers configured in `/etc/resolv.conf`.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  dns_servers:
+                    type: array
+                    items:
+                      type: string
+                      example: "8.8.8.8"
+  /api/dns-setup:
+    post:
+      summary: Update DNS Servers
+      description: Update the DNS servers in `/etc/resolv.conf`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dns_servers:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - "8.8.8.8"
+                    - "8.8.4.4"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: DNS servers updated successfully.
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid data. Provide a list of DNS servers.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Error message
+components:
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Not found
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Internal server error
