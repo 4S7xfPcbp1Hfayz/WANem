@@ -16,6 +16,8 @@ It's particularly useful for testing SD-WAN and other network scenarios.
 
 - 🐍 Python 3.6+
 - ⚙️ Flask
+- 🐧 Debian (or Debian-based system)
+- 🛠️ `tc` and `netem` utilities
 
 ### 💻 Installation
 
