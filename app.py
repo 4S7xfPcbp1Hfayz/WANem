@@ -232,6 +232,20 @@ def dns_setup():
         logging.error(str(e))
         return jsonify({"error": str(e)}), 500
 
+def validate_traffic_control_params(bandwidth, delay, jitter, loss, corrupt):
+    """Validate traffic control parameters."""
+    if bandwidth and not re.match(r'^\d+[KMG]?bit$', bandwidth):
+        return "Invalid bandwidth format."
+    if delay and not re.match(r'^\d+ms$', delay):
+        return "Invalid delay format."
+    if jitter and not re.match(r'^\d+ms$', jitter):
+        return "Invalid jitter format."
+    if loss and not re.match(r'^\d+%$', loss):
+        return "Invalid loss format."
+    if corrupt and not re.match(r'^\d+%$', corrupt):
+        return "Invalid corrupt format."
+    return None
+
 @app.route('/api/traffic-control', methods=['POST'])
 def traffic_control():
     """Set up traffic control conditions on a specific network interface."""
@@ -246,7 +260,41 @@ def traffic_control():
     if not interface:
         return jsonify({"error": "Interface is required"}), 400
 
-    # Validate and set up tc command options
+    # Validate traffic control parameters
+    validation_error = validate_traffic_control_params(bandwidth, delay, jitter, loss, corrupt)
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
+
+    # Check if the interface exists
+    if not os.path.exists(f"/sys/class/net/{interface}"):
+        return jsonify({"error": f"Interface {interface} does not exist"}), 400
+
+    # Command to retrieve traffic control settings
+    tc_show_command = f"tc qdisc show dev {interface}"
+    output, error = run_command(tc_show_command, shell=True)
+
+    if error:
+        # If the error indicates that no such file or directory, it means no qdisc was found, which is acceptable
+        if "No such file or directory" in error:
+            clear_error = None
+        else:
+            return jsonify({"error": error}), 500
+    else:
+        # Check if any traffic control rules are applied
+        if "netem" in output:
+            # Command to clear traffic control settings
+            clear_command = f"tc qdisc del dev {interface} root"
+            _, clear_error = run_command(clear_command, shell=True)
+            if clear_error:
+                # Handle specific errors or general errors here
+                if "No such file or directory" in clear_error:
+                    clear_error = None  # Ignore if no rules were found to delete
+                else:
+                    return jsonify({"error": clear_error}), 500
+        else:
+            clear_error = None
+
+    # Build new traffic control command
     tc_command = f"tc qdisc add dev {interface} root netem"
     if bandwidth:
         tc_command += f" rate {bandwidth}"
@@ -259,7 +307,7 @@ def traffic_control():
     if corrupt:
         tc_command += f" corrupt {corrupt}"
 
-    # Execute the command
+    # Apply the new traffic control settings
     _, error = run_command(tc_command, shell=True)
     if error:
         return jsonify({"error": error}), 500
