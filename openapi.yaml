@@ -181,6 +181,60 @@ paths:
                   error:
                     type: string
                     example: Error message
+  /api/set-ip:
+    post:
+      summary: Set IP Address and Netmask
+      description: Configure the IP address and netmask for a specific network interface.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                interface:
+                  type: string
+                  example: eth0
+                ip_address:
+                  type: string
+                  example: "192.168.1.100"
+                netmask:
+                  type: string
+                  example: "24"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: IP address and netmask set for eth0
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid IP address: 192.168.1.100
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Command '...' failed: ...
 components:
   responses:
     NotFound:
