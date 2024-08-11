@@ -241,6 +241,7 @@ def traffic_control():
     delay = data.get('delay')
     jitter = data.get('jitter')
     loss = data.get('loss')
+    corrupt = data.get('corrupt')
 
     if not interface:
         return jsonify({"error": "Interface is required"}), 400
@@ -255,6 +256,8 @@ def traffic_control():
         tc_command += f" {jitter}"
     if loss:
         tc_command += f" loss {loss}"
+    if corrupt:
+        tc_command += f" corrupt {corrupt}"
 
     # Execute the command
     _, error = run_command(tc_command, shell=True)
