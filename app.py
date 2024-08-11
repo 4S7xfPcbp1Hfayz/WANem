@@ -146,6 +146,31 @@ def set_ip():
 
     return jsonify({"status": "success", "message": f"IP address and netmask set for {interface}"}), 200
 
+@app.route('/api/interface-control', methods=['POST'])
+def interface_control():
+    """Bring a specific network interface up or down."""
+    data = request.json
+    interface = data.get('interface')
+    action = data.get('action')
+
+    if not interface or not action:
+        return jsonify({"error": "Interface and action are required"}), 400
+
+    if action not in ['up', 'down']:
+        return jsonify({"error": "Invalid action. Must be 'up' or 'down'"}), 400
+
+    # Check if the interface exists
+    if not os.path.exists(f"/sys/class/net/{interface}"):
+        return jsonify({"error": f"Interface {interface} does not exist"}), 400
+
+    # Command to bring the interface up or down
+    command = f"ip link set {interface} {action}"
+    _, error = run_command(command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    return jsonify({"status": "success", "message": f"Interface {interface} has been {action}ed"}), 200
+
 @app.route('/api/network-info', methods=['GET'])
 def network_info():
     """Retrieve information about all network interfaces."""
