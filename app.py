@@ -275,7 +275,21 @@ def clear_traffic_control():
     if not interface:
         return jsonify({"error": "Interface is required"}), 400
 
-    # Command to clear traffic control
+    # Check if the interface exists
+    if not os.path.exists(f"/sys/class/net/{interface}"):
+        return jsonify({"error": f"Interface {interface} does not exist"}), 400
+
+    # Command to retrieve traffic control settings
+    tc_show_command = f"tc qdisc show dev {interface}"
+    output, error = run_command(tc_show_command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    # Check if any traffic control rules are applied
+    if "netem" not in output:
+        return jsonify({"status": "success", "message": "No traffic control setup on this interface"}), 200
+
+    # Command to clear traffic control settings
     tc_clear_command = f"tc qdisc del dev {interface} root"
     _, error = run_command(tc_clear_command, shell=True)
     if error:
@@ -310,11 +324,12 @@ def traffic_control_info():
     lines = output.splitlines()
     for line in lines:
         if "netem" in line:
-            # Extract delay, loss, etc.
+            # Extract delay, loss, bandwidth, jitter, and corrupt
             delay_match = re.search(r'delay (\d+ms)', line)
             loss_match = re.search(r'loss (\d+)%', line)
             rate_match = re.search(r'rate (\S+)', line)
             jitter_match = re.search(r'jitter (\d+ms)', line)
+            corrupt_match = re.search(r'corrupt (\d+)%', line)
 
             if delay_match:
                 tc_details['delay'] = delay_match.group(1)
@@ -324,6 +339,8 @@ def traffic_control_info():
                 tc_details['bandwidth'] = rate_match.group(1)
             if jitter_match:
                 tc_details['jitter'] = jitter_match.group(1)
+            if corrupt_match:
+                tc_details['corrupt'] = corrupt_match.group(1)
     
     return jsonify({"status": "success", "interface": interface, "traffic_control": tc_details}), 200
 
