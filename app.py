@@ -232,6 +232,98 @@ def dns_setup():
         logging.error(str(e))
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/traffic-control', methods=['POST'])
+def traffic_control():
+    """Set up traffic control conditions on a specific network interface."""
+    data = request.json
+    interface = data.get('interface')
+    bandwidth = data.get('bandwidth')
+    delay = data.get('delay')
+    jitter = data.get('jitter')
+    loss = data.get('loss')
+
+    if not interface:
+        return jsonify({"error": "Interface is required"}), 400
+
+    # Validate and set up tc command options
+    tc_command = f"tc qdisc add dev {interface} root netem"
+    if bandwidth:
+        tc_command += f" rate {bandwidth}"
+    if delay:
+        tc_command += f" delay {delay}"
+    if jitter:
+        tc_command += f" {jitter}"
+    if loss:
+        tc_command += f" loss {loss}"
+
+    # Execute the command
+    _, error = run_command(tc_command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    return jsonify({"status": "success", "message": "Traffic control applied"}), 200
+
+@app.route('/api/traffic-control/clear', methods=['POST'])
+def clear_traffic_control():
+    """Clear traffic control settings on a specific network interface."""
+    data = request.json
+    interface = data.get('interface')
+
+    if not interface:
+        return jsonify({"error": "Interface is required"}), 400
+
+    # Command to clear traffic control
+    tc_clear_command = f"tc qdisc del dev {interface} root"
+    _, error = run_command(tc_clear_command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    return jsonify({"status": "success", "message": "Traffic control cleared"}), 200
+
+@app.route('/api/traffic-control/info', methods=['GET'])
+def traffic_control_info():
+    """Retrieve the current traffic control settings for a specific network interface."""
+    interface = request.args.get('interface')
+
+    if not interface:
+        return jsonify({"error": "Interface is required"}), 400
+
+    # Check if the interface exists
+    if not os.path.exists(f"/sys/class/net/{interface}"):
+        return jsonify({"error": f"Interface {interface} does not exist"}), 400
+
+    # Command to retrieve traffic control settings
+    tc_show_command = f"tc qdisc show dev {interface}"
+    output, error = run_command(tc_show_command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    # Check if any traffic control rules are applied
+    if "noqueue" in output:
+        return jsonify({"status": "success", "message": "No traffic control setup on this interface"}), 200
+
+    # Parse the output to provide meaningful information
+    tc_details = {}
+    lines = output.splitlines()
+    for line in lines:
+        if "netem" in line:
+            # Extract delay, loss, etc.
+            delay_match = re.search(r'delay (\d+ms)', line)
+            loss_match = re.search(r'loss (\d+)%', line)
+            rate_match = re.search(r'rate (\S+)', line)
+            jitter_match = re.search(r'jitter (\d+ms)', line)
+
+            if delay_match:
+                tc_details['delay'] = delay_match.group(1)
+            if loss_match:
+                tc_details['loss'] = loss_match.group(1)
+            if rate_match:
+                tc_details['bandwidth'] = rate_match.group(1)
+            if jitter_match:
+                tc_details['jitter'] = jitter_match.group(1)
+    
+    return jsonify({"status": "success", "interface": interface, "traffic_control": tc_details}), 200
+
 @app.errorhandler(404)
 def not_found(error):
     """Custom 404 error handler."""
