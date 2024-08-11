@@ -106,6 +106,46 @@ def get_vlan_info(interface):
 
     return vlan_info
 
+@app.route('/api/set-ip', methods=['POST'])
+def set_ip():
+    """Set IP address and netmask for a specific network interface."""
+    data = request.json
+    interface = data.get('interface')
+    ip_address = data.get('ip_address')
+    netmask = data.get('netmask')
+
+    # Validate input
+    if not interface or not ip_address or not netmask:
+        return jsonify({"error": "Interface, IP address, and netmask are required"}), 400
+
+    # Check if the interface exists
+    if not os.path.exists(f"/sys/class/net/{interface}"):
+        return jsonify({"error": f"Interface {interface} does not exist"}), 400
+
+    try:
+        ipaddress.ip_address(ip_address)
+    except ValueError:
+        return jsonify({"error": f"Invalid IP address: {ip_address}"}), 400
+
+    try:
+        ipaddress.IPv4Network(f"0.0.0.0/{netmask}")
+    except ValueError:
+        return jsonify({"error": f"Invalid netmask: {netmask}"}), 400
+
+    # Set the IP address and netmask
+    command = f"ip addr add {ip_address}/{netmask} dev {interface}"
+    _, error = run_command(command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    # Bring the interface up (if it's down)
+    command = f"ip link set {interface} up"
+    _, error = run_command(command, shell=True)
+    if error:
+        return jsonify({"error": error}), 500
+
+    return jsonify({"status": "success", "message": f"IP address and netmask set for {interface}"}), 200
+
 @app.route('/api/network-info', methods=['GET'])
 def network_info():
     """Retrieve information about all network interfaces."""
