@@ -235,6 +235,110 @@ paths:
                   error:
                     type: string
                     example: Command '...' failed ...
+
+  # New Endpoints
+  /api/traffic-control:
+    post:
+      summary: Configure Traffic Control
+      description: Apply traffic control settings such as bandwidth limit, latency, and packet loss using `tc` and `netem`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                interface:
+                  type: string
+                  example: eth0
+                bandwidth:
+                  type: string
+                  example: "1mbit"
+                latency:
+                  type: string
+                  example: "100ms"
+                packet_loss:
+                  type: string
+                  example: "1%"
+                description:
+                  type: string
+                  example: "Set bandwidth limit and latency for testing"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Traffic control settings applied successfully.
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid parameters. Ensure bandwidth, latency, and packet loss are correctly formatted.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Error message
+
+  /api/traffic-control/status:
+    get:
+      summary: Retrieve Current Traffic Control Status
+      description: Get the current traffic control settings applied on the system.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  settings:
+                    type: object
+                    properties:
+                      interface:
+                        type: string
+                        example: eth0
+                      bandwidth:
+                        type: string
+                        example: "1mbit"
+                      latency:
+                        type: string
+                        example: "100ms"
+                      packet_loss:
+                        type: string
+                        example: "1%"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Error message
+
 components:
   responses:
     NotFound:
